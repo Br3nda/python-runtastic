@@ -13,13 +13,31 @@ def request(path, postfields):
 
     params = urllib.urlencode(postfields)
     url = _URL + path
+    logger.debug("Url = {url}".format(url=url))
 
     req = urllib2.Request(url, headers=headers)
     response = urllib2.urlopen(req, params)
+    
+    logger.debug(response)
 
     #parse from json
     return json.loads(response.read())
 
+
+class Statistics(object):
+    def __init__(self, user_id):
+        self.user_id = user_id
+        
+    def week(self, weeks_ago=0):
+        response = request('statistics/week.json', postfields={
+            'weeks_ago': weeks_ago,
+            'user_id': self.user_id})
+        print response
+        
+        for data in response:
+            print data
+        return response
+    
 class TrainingHistory(object):
     
     def __init__(self, user_id):
@@ -52,6 +70,7 @@ class Activity(object):
         Populate with data from runtastic query
         """
         self.data = data
+        
     def __str__(self):
         return "{id} {data}".format(id=self.activity_id, data=self.data)
         
