@@ -8,20 +8,31 @@ import re
 logger = logging.getLogger('runtastic')
 _URL = 'http://www.runtastic.com/api/'
 
-def request(path, postfields):
+def request(path, postfields=None):
     headers = {}
-
-    params = urllib.urlencode(postfields)
+        
     url = _URL + path
-    logger.debug("Url = {url}".format(url=url))
+    print "Url = {url}".format(url=url)
 
     req = urllib2.Request(url, headers=headers)
-    response = urllib2.urlopen(req, params)
+    if postfields:
+        params = urllib.urlencode(postfields)
+        response = urllib2.urlopen(req, params)
+    else:
+        response = urllib2.urlopen(req)
     
     logger.debug(response)
 
     #parse from json
     return json.loads(response.read())
+
+class User(object):
+    def __init__(self, user_id):
+        self.user_id = user_id
+    def get(self):
+        #http://www.runtastic.com/api/feed/profile?page=1&user_id=43891
+        self.data = request('feed/profile?page=1&user_id='+str(self.user_id), None)
+        print self.data
 
 
 class Statistics(object):
@@ -70,6 +81,10 @@ class Activity(object):
         Populate with data from runtastic query
         """
         self.data = data
+        
+    def get(self):
+        #http://www.runtastic.com/en/users/{firstname}-{lastname}{num}/sport-sessions/{activity_id}.gpx
+        pass
         
     def __str__(self):
         return "{id} {data}".format(id=self.activity_id, data=self.data)
